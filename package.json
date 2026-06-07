@@ -1,0 +1,34 @@
+{
+  "name": "gymflow",
+  "version": "1.0.0",
+  "description": "GymFlow é um sistema completo de gerenciamento de treinos para academias.",
+  "main": "_web.js",
+  "type": "module",
+  "scripts": {
+    "start": "node _web.js",
+    "dev": "./node_modules/.bin/nodemon _web.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luizarolfsen/PROVA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luizarolfsen/PROVA/issues"
+  },
+  "homepage": "https://github.com/luizarolfsen/PROVA#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.21.0",
+    "sequelize": "^6.37.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,43 @@
+services:
+
+  # container do banco de dados
+  postgres:
+    image: postgres:17
+    container_name: postgres-container
+    restart: always
+    environment:
+      POSTGRES_USER: gymflow_user
+      POSTGRES_PASSWORD: prova2bimestre
+      POSTGRES_DB: gymflow
+    networks:
+      - gymflow-network
+
+  # container do servidor Node (sem porta exposta ao host)
+  nodeweb:
+    build:
+      context: .
+      dockerfile: docker/node-web/Dockerfile
+    container_name: nodeweb-container
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    networks:
+      - gymflow-network
+
+  # container do Nginx (único com porta exposta ao host)
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: nginx-container
+    ports:
+      - "8080:80"
+    depends_on:
+      - nodeweb
+    networks:
+      - gymflow-network
+
+networks:
+  gymflow-network:
+    driver: bridge
