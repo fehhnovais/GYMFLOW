@@ -2,11 +2,13 @@ import 'dotenv/config'
 import express from 'express'
 import sequelize from './src/database/connection.js'
 import './src/models/index.js'
+import authRoutes from './src/routes/AuthRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
 app.use(express.json())
+app.use('/', authRoutes)
 
 app.get('/', (req, res) => {
   res.json({ message: 'GymFlow API rodando!' })
