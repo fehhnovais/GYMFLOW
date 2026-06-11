@@ -7,6 +7,14 @@ const Aluno = sequelize.define('Aluno', {
     primaryKey: true,
     autoIncrement: true,
   },
+  usuario_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  personal_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   nome: {
     type: DataTypes.STRING(100),
     allowNull: false,
