@@ -1,0 +1,33 @@
+{
+  "name": "prova",
+  "version": "1.0.0",
+  "description": "GymFlow é um sistema completo de gerenciamento de treinos para academias. O objetivo é permitir o cadastro de alunos, a criação de treinos personalizados, o controle de exercícios, o registro de histórico de execução e o acompanhamento da evolução física.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fehhnovais/PROVA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/fehhnovais/PROVA/issues"
+  },
+  "homepage": "https://github.com/fehhnovais/PROVA#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.21.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.5"
+  }
+}
