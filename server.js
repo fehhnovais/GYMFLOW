@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import { swaggerSpec, swaggerUi } from './src/swagger.js'
 import sequelize from './src/database/connection.js'
 import './src/models/index.js'
 import authRoutes from './src/routes/AuthRoutes.js'
@@ -16,10 +17,9 @@ const PORT = process.env.PORT || 3000
 
 app.use(express.json())
 
-// Rotas públicas (sem JWT)
-app.use('/', authRoutes)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
-// Rotas protegidas
+app.use('/', authRoutes)
 app.use('/alunos', alunoRoutes)
 app.use('/personais', personalRoutes)
 app.use('/treinos', treinoRoutes)
@@ -37,6 +37,7 @@ sequelize.authenticate()
     console.log('Banco de dados conectado!')
     app.listen(PORT, () => {
       console.log(`Servidor rodando na porta ${PORT}`)
+      console.log(`Swagger disponível em http://localhost:${PORT}/api-docs`)
     })
   })
   .catch((err) => {
