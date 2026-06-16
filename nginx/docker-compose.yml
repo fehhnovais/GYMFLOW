@@ -1,0 +1,66 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/node-web/Dockerfile
+    container_name: gymflow-app
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    networks:
+      - gymflow-network
+    # ⚠️ Sem "ports" — Node.js só acessível via Nginx
+
+  db:
+    image: postgres:17-alpine
+    container_name: gymflow-db
+    restart: always
+    environment:
+      POSTGRES_USER: gymflow_user
+      POSTGRES_PASSWORD: gymflow_pass
+      POSTGRES_DB: gymflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gymflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gymflow_user -d gymflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # ⚠️ Sem "ports" — banco inacessível pelo host
+
+  cache:
+    image: redis:7-alpine
+    container_name: gymflow-cache
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - gymflow-network
+    # ⚠️ Sem "ports" — Redis privado
+
+  nginx:
+    image: nginx:alpine
+    container_name: gymflow-nginx
+    restart: always
+    ports:
+      - "80:80"        # único ponto de entrada público
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - gymflow-network
+
+networks:
+  gymflow-network:
+    driver: bridge     # Custom Bridge — DNS interno por nome de serviço
+
+volumes:
+  postgres_data:       # Named Volume — dados sobrevivem ao container
+  redis_data:          # Named Volume — Redis persistente

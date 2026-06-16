@@ -1,0 +1,68 @@
+version: '3.8'
+services:
+
+  app:
+    build: .
+    container_name: gymflow-app
+    restart: always
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=gymflow_user
+      - DB_PASSWORD=gymflow_pass
+      - DB_NAME=gymflow
+      - JWT_SECRET=segredo_super_secret
+    networks:
+      - gymflow-network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    container_name: gymflow-db
+    restart: always
+    environment:
+      POSTGRES_USER: gymflow_user
+      POSTGRES_PASSWORD: gymflow_pass
+      POSTGRES_DB: gymflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - gymflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gymflow_user -d gymflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cache:
+    image: redis:7-alpine
+    container_name: gymflow-cache
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - gymflow-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: gymflow-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - gymflow-network
+
+networks:
+  gymflow-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
