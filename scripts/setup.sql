@@ -1,102 +1,102 @@
--- ============================================================
--- FitFlow — Script DDL completo
--- Banco: PostgreSQL 17
--- App de gerenciamento de treinos de academia
--- ============================================================
+-- Criação do Banco de Dados
+CREATE DATABASE IF NOT EXISTS gymflow;
+USE gymflow;
 
--- ── ENUMs ─────────────────────────────────────────────────
-CREATE TYPE perfil_usuario AS ENUM ('admin', 'instrutor', 'recepcao');
-CREATE TYPE tipo_treino    AS ENUM ('musculacao', 'cardio', 'funcional', 'yoga', 'pilates', 'crossfit');
-CREATE TYPE nivel_treino   AS ENUM ('iniciante', 'intermediario', 'avancado');
-
--- ── Tabela: usuarios ──────────────────────────────────────
--- Controla o acesso ao sistema (login JWT).
--- Um usuário pode ser vinculado a um aluno (relação 1:1 opcional).
+-- 1. Tabela: usuarios
 CREATE TABLE IF NOT EXISTS usuarios (
-  id            SERIAL PRIMARY KEY,
-  nome          VARCHAR(100)    NOT NULL,
-  email         VARCHAR(150)    NOT NULL UNIQUE,
-  senha         VARCHAR(255)    NOT NULL,        -- hash bcrypt
-  perfil        perfil_usuario  NOT NULL DEFAULT 'recepcao',
-  ativo         BOOLEAN         NOT NULL DEFAULT TRUE,
-  criado_em     TIMESTAMP       NOT NULL DEFAULT NOW(),
-  atualizado_em TIMESTAMP       NOT NULL DEFAULT NOW()
-);
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    tipo VARCHAR(20) DEFAULT 'trainer',
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL
+) ENGINE=InnoDB;
 
--- ── Tabela: instrutores ───────────────────────────────────
-CREATE TABLE IF NOT EXISTS instrutores (
-  id             SERIAL PRIMARY KEY,
-  nome           VARCHAR(100)  NOT NULL,
-  cpf            VARCHAR(14)   NOT NULL UNIQUE,
-  email          VARCHAR(150)  NOT NULL UNIQUE,
-  telefone       VARCHAR(20),
-  especialidade  VARCHAR(100),
-  cref           VARCHAR(20)   UNIQUE,
-  ativo          BOOLEAN       NOT NULL DEFAULT TRUE,
-  criado_em      TIMESTAMP     NOT NULL DEFAULT NOW(),
-  atualizado_em  TIMESTAMP     NOT NULL DEFAULT NOW()
-);
+-- 2. Tabela: personal
+CREATE TABLE IF NOT EXISTS personal (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
--- ── Tabela: alunos ────────────────────────────────────────
--- usuario_id é opcional (FK → usuarios): vincula o aluno a uma conta de acesso.
+-- 3. Tabela: alunos
 CREATE TABLE IF NOT EXISTS alunos (
-  id              SERIAL PRIMARY KEY,
-  usuario_id      INTEGER       UNIQUE REFERENCES usuarios(id) ON DELETE SET NULL,
-  nome            VARCHAR(100)  NOT NULL,
-  cpf             VARCHAR(14)   NOT NULL UNIQUE,
-  email           VARCHAR(150)  NOT NULL UNIQUE,
-  telefone        VARCHAR(20),
-  data_nascimento DATE,
-  data_matricula  DATE          DEFAULT CURRENT_DATE,
-  ativo           BOOLEAN       NOT NULL DEFAULT TRUE,
-  criado_em       TIMESTAMP     NOT NULL DEFAULT NOW(),
-  atualizado_em   TIMESTAMP     NOT NULL DEFAULT NOW()
-);
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    personal_id INT NULL,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    idade INT,
+    peso DECIMAL(5, 2),
+    altura DECIMAL(4, 2),
+    objetivo VARCHAR(50),
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (personal_id) REFERENCES personal(id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
--- ── Tabela: treinos ───────────────────────────────────────
+-- 4. Tabela: exercicios
+CREATE TABLE IF NOT EXISTS exercicios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    grupo_muscular VARCHAR(50) NOT NULL,
+    descricao TEXT,
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL
+) ENGINE=InnoDB;
+
+-- 5. Tabela: treinos
 CREATE TABLE IF NOT EXISTS treinos (
-  id               SERIAL PRIMARY KEY,
-  nome             VARCHAR(100)  NOT NULL,
-  descricao        TEXT,
-  tipo             tipo_treino   NOT NULL,
-  duracao_minutos  INTEGER       NOT NULL CHECK (duracao_minutos > 0),
-  nivel            nivel_treino  NOT NULL DEFAULT 'iniciante',
-  instrutor_id     INTEGER       NOT NULL REFERENCES instrutores(id),
-  ativo            BOOLEAN       NOT NULL DEFAULT TRUE,
-  criado_em        TIMESTAMP     NOT NULL DEFAULT NOW(),
-  atualizado_em    TIMESTAMP     NOT NULL DEFAULT NOW()
-);
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aluno_id INT NOT NULL,
+    personal_id INT NULL,
+    nome VARCHAR(50) NOT NULL,
+    descricao TEXT,
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL,
+    FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (personal_id) REFERENCES personal(id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
--- ── Tabela Pivô: aluno_treinos (N:N) ─────────────────────
-CREATE TABLE IF NOT EXISTS aluno_treinos (
-  id            SERIAL PRIMARY KEY,
-  aluno_id      INTEGER   NOT NULL REFERENCES alunos(id)   ON DELETE CASCADE,
-  treino_id     INTEGER   NOT NULL REFERENCES treinos(id)  ON DELETE CASCADE,
-  data_inicio   DATE      DEFAULT CURRENT_DATE,
-  data_fim      DATE,
-  observacoes   TEXT,
-  criado_em     TIMESTAMP NOT NULL DEFAULT NOW(),
-  atualizado_em TIMESTAMP NOT NULL DEFAULT NOW(),
-  CONSTRAINT uq_aluno_treino UNIQUE (aluno_id, treino_id)
-);
+-- 6. Tabela: treino_exercicios (Relacionamento N:N)
+CREATE TABLE IF NOT EXISTS treino_exercicios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    treino_id INT NOT NULL,
+    exercicio_id INT NOT NULL,
+    series INT NOT NULL,
+    repeticoes INT NOT NULL,
+    carga DECIMAL(5, 2),
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL,
+    FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
--- ── Índices ───────────────────────────────────────────────
-CREATE INDEX IF NOT EXISTS idx_usuarios_email      ON usuarios(email);
-CREATE INDEX IF NOT EXISTS idx_usuarios_perfil     ON usuarios(perfil);
+-- 7. Tabela: historico
+CREATE TABLE IF NOT EXISTS historico (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aluno_id INT NOT NULL,
+    treino_id INT NOT NULL,
+    data_execucao DATE NOT NULL,
+    observacoes TEXT,
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL,
+    FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
-CREATE INDEX IF NOT EXISTS idx_instrutores_cpf     ON instrutores(cpf);
-CREATE INDEX IF NOT EXISTS idx_instrutores_email   ON instrutores(email);
-
-CREATE INDEX IF NOT EXISTS idx_alunos_usuario_id   ON alunos(usuario_id);
-CREATE INDEX IF NOT EXISTS idx_alunos_cpf          ON alunos(cpf);
-CREATE INDEX IF NOT EXISTS idx_alunos_email        ON alunos(email);
-CREATE INDEX IF NOT EXISTS idx_alunos_matricula    ON alunos(data_matricula);
-CREATE INDEX IF NOT EXISTS idx_alunos_ativo        ON alunos(ativo);
-
-CREATE INDEX IF NOT EXISTS idx_treinos_instrutor   ON treinos(instrutor_id);
-CREATE INDEX IF NOT EXISTS idx_treinos_tipo        ON treinos(tipo);
-CREATE INDEX IF NOT EXISTS idx_treinos_nivel       ON treinos(nivel);
-
-CREATE INDEX IF NOT EXISTS idx_at_aluno_id         ON aluno_treinos(aluno_id);
-CREATE INDEX IF NOT EXISTS idx_at_treino_id        ON aluno_treinos(treino_id);
-CREATE INDEX IF NOT EXISTS idx_at_data_inicio      ON aluno_treinos(data_inicio);
+-- 8. Tabela: progresso
+CREATE TABLE IF NOT EXISTS progresso (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    aluno_id INT NOT NULL,
+    peso DECIMAL(5, 2),
+    percentual_gordura DECIMAL(5, 2),
+    data_registro DATE NOT NULL,
+    createdAt DATETIME NOT NULL,
+    updatedAt DATETIME NOT NULL,
+    FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
