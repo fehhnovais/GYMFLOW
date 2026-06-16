@@ -8,7 +8,7 @@ TRUNCATE TABLE treino_exercicios;
 TRUNCATE TABLE treinos;
 TRUNCATE TABLE exercicios;
 TRUNCATE TABLE alunos;
-TRUNCATE TABLE personal;
+TRUNCATE TABLE personal; 
 TRUNCATE TABLE usuarios;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -19,7 +19,7 @@ INSERT INTO usuarios (id, nome, email, senha, tipo, createdAt, updatedAt) VALUES
 (3, 'Carlos Henrique (Aluno)', 'carlos.aluno@email.com', '$2b$10$abcdefghijklmnopqrstuv', 'aluno', NOW(), NOW());
 
 -- 2. Populando Personais
-INSERT INTO personal (id, usuario_id, createdAt, updatedAt) VALUES
+INSERT INTO personal (id, usuario_id, createdAt, updatedAt) VALUES 
 (1, 1, NOW(), NOW());
 
 -- 3. Populando Alunos

@@ -1,100 +1,47 @@
+USE gymflow;
 
--- ──────────────────────────────────────────────────────────
--- CONSULTA 1: Treinos de um aluno (ficha completa)
--- Importância: Consulta central — exibe o histórico de treinos
--- de cada aluno para o instrutor acompanhar a evolução.
--- Índices: idx_at_aluno_id, idx_at_treino_id
--- ──────────────────────────────────────────────────────────
-EXPLAIN ANALYZE
-SELECT
-    a.id          AS aluno_id,
-    a.nome        AS aluno,
-    t.nome        AS treino,
-    t.tipo,
-    t.nivel,
-    i.nome        AS instrutor,
-    at.data_inicio,
-    at.data_fim,
-    at.observacoes
+-- 1. Listar todos os alunos junto com o nome do seu respectivo Personal Trainer
+SELECT 
+    a.id AS aluno_id,
+    a.nome AS nome_aluno,
+    a.objetivo,
+    u_personal.nome AS nome_personal
 FROM alunos a
-JOIN aluno_treinos at ON at.aluno_id    = a.id
-JOIN treinos t        ON at.treino_id  = t.id
-JOIN instrutores i    ON t.instrutor_id = i.id
-WHERE a.id = 1
-ORDER BY at.data_inicio DESC;
+INNER JOIN personal p ON a.personal_id = p.id
+INNER JOIN usuarios u_personal ON p.usuario_id = u_personal.id;
 
--- ──────────────────────────────────────────────────────────
--- CONSULTA 2: Relatório de carga por instrutor (agregação)
--- Importância: Avalia quantos alunos e treinos cada instrutor
--- gerencia, apoiando decisões de escala de equipe.
--- Índices: idx_treinos_instrutor, idx_at_treino_id
--- ──────────────────────────────────────────────────────────
-EXPLAIN ANALYZE
-SELECT
-    i.nome                        AS instrutor,
-    i.especialidade,
-    COUNT(DISTINCT t.id)          AS total_treinos,
-    SUM(t.duracao_minutos)        AS carga_total_minutos,
-    COUNT(DISTINCT at.aluno_id)   AS total_alunos_atendidos
-FROM instrutores i
-LEFT JOIN treinos t        ON t.instrutor_id = i.id
-LEFT JOIN aluno_treinos at ON at.treino_id   = t.id
-WHERE i.ativo = true
-GROUP BY i.id, i.nome, i.especialidade
-ORDER BY total_alunos_atendidos DESC;
 
--- ──────────────────────────────────────────────────────────
--- CONSULTA 3: Treinos mais populares (ranking com WINDOW)
--- Importância: Identifica quais treinos têm maior adesão para
--- priorizar horários e alocar instrutores.
--- Índices: idx_at_treino_id, idx_treinos_tipo
--- ──────────────────────────────────────────────────────────
-EXPLAIN ANALYZE
-SELECT
-    t.nome                AS treino,
-    t.tipo,
-    t.nivel,
-    t.duracao_minutos,
-    i.nome                AS instrutor,
-    COUNT(at.id)          AS total_matriculas,
-    RANK() OVER (ORDER BY COUNT(at.id) DESC) AS ranking
+-- 2. Trazer a ficha completa de um treino específico (ex: Treino ID 2) com todos os seus exercícios e cargas
+SELECT 
+    t.nome AS nome_treino,
+    t.descricao AS descricao_treino,
+    e.nome AS nome_exercicio,
+    e.grupo_muscular,
+    te.series,
+    te.repeticoes,
+    te.carga
 FROM treinos t
-JOIN instrutores i         ON t.instrutor_id  = i.id
-LEFT JOIN aluno_treinos at ON at.treino_id    = t.id
-WHERE t.ativo = true
-GROUP BY t.id, t.nome, t.tipo, t.nivel, t.duracao_minutos, i.nome
-ORDER BY ranking;
+INNER JOIN treino_exercicios te ON t.id = te.treino_id
+INNER JOIN exercicios e ON te.exercicio_id = e.id
+WHERE t.id = 2;
 
--- ──────────────────────────────────────────────────────────
--- CONSULTA 4: Alunos por período de matrícula (filtro de data)
--- Importância: Relatório de novas matrículas por mês para
--- análise de crescimento da academia.
--- Índices: idx_alunos_matricula, idx_alunos_ativo
--- ──────────────────────────────────────────────────────────
-EXPLAIN ANALYZE
-SELECT
-    DATE_TRUNC('month', data_matricula) AS mes,
-    COUNT(*)                            AS novas_matriculas
-FROM alunos
-WHERE ativo = true
-  AND data_matricula BETWEEN '2024-01-01' AND '2024-12-31'
-GROUP BY mes
-ORDER BY mes;
 
--- ──────────────────────────────────────────────────────────
--- CONSULTA 5: Alunos sem treino ativo (JOIN complexo)
--- Importância: Identifica alunos matriculados que ainda não
--- foram vinculados a nenhum treino para acompanhamento.
--- Índices: idx_at_aluno_id, idx_alunos_ativo
--- ──────────────────────────────────────────────────────────
-EXPLAIN ANALYZE
-SELECT
-    a.id,
-    a.nome,
-    a.email,
-    a.data_matricula
-FROM alunos a
-LEFT JOIN aluno_treinos at ON at.aluno_id = a.id
-WHERE a.ativo = true
-  AND at.id IS NULL
-ORDER BY a.data_matricula DESC;
+-- 3. Histórico de treinos realizados por um aluno (ex: Aluno ID 1) ordenados pelo mais recente
+SELECT 
+    h.data_execucao,
+    t.nome AS treino_realizado,
+    h.observacoes
+FROM historico h
+INNER JOIN treinos t ON h.treino_id = t.id
+WHERE h.aluno_id = 1
+ORDER BY h.data_execucao DESC;
+
+
+-- 4. Buscar o histórico de evolução física (peso e gordura) de um aluno específico (ex: Aluno ID 1)
+SELECT 
+    data_registro,
+    peso,
+    percentual_gordura
+FROM progresso
+WHERE aluno_id = 1
+ORDER BY data_registro ASC;

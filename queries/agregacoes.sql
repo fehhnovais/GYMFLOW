@@ -1,49 +1,51 @@
--- ============================================================
--- gymFlow — Consultas de agregação e relatórios
--- ============================================================
+USE gymflow;
 
--- Treinos mais populares
-SELECT t.nome, t.tipo, t.nivel, COUNT(at.id) AS matriculas
-FROM treinos t
-LEFT JOIN aluno_treinos at ON at.treino_id = t.id
-GROUP BY t.id, t.nome, t.tipo, t.nivel
-ORDER BY matriculas DESC;
+-- 1. Quantidade de alunos vinculados a cada Personal Trainer
+SELECT 
+    p.id AS personal_id,
+    u.nome AS nome_personal,
+    COUNT(a.id) AS total_de_alunos
+FROM personal p
+INNER JOIN usuarios u ON p.usuario_id = u.id
+LEFT JOIN alunos a ON a.personal_id = p.id
+GROUP BY p.id, u.nome;
 
--- Carga de trabalho por instrutor
-SELECT i.nome AS instrutor, i.especialidade,
-  COUNT(DISTINCT t.id)        AS qtd_treinos,
-  COUNT(DISTINCT at.aluno_id) AS qtd_alunos,
-  SUM(t.duracao_minutos)      AS carga_total_min
-FROM instrutores i
-LEFT JOIN treinos t        ON t.instrutor_id = i.id
-LEFT JOIN aluno_treinos at ON at.treino_id   = t.id
-GROUP BY i.id, i.nome, i.especialidade
-ORDER BY qtd_alunos DESC;
 
--- Distribuição de alunos por nível de treino
-SELECT t.nivel, COUNT(DISTINCT at.aluno_id) AS qtd_alunos
-FROM treinos t
-JOIN aluno_treinos at ON at.treino_id = t.id
-GROUP BY t.nivel
-ORDER BY t.nivel;
+-- 2. Média de idade, peso e altura dos alunos cadastrados no sistema
+SELECT 
+    COUNT(id) AS total_alunos_avaliados,
+    ROUND(AVG(idade), 1) AS media_idade,
+    ROUND(AVG(peso), 2) AS media_peso_kg,
+    ROUND(AVG(altura), 2) AS media_altura_metros
+FROM alunos;
 
--- Distribuição de alunos por tipo de treino
-SELECT t.tipo, COUNT(DISTINCT at.aluno_id) AS qtd_alunos
-FROM treinos t
-JOIN aluno_treinos at ON at.treino_id = t.id
-GROUP BY t.tipo
-ORDER BY qtd_alunos DESC;
 
--- Novas matrículas por mês
-SELECT DATE_TRUNC('month', data_matricula) AS mes,
-       COUNT(*) AS total
-FROM alunos
-WHERE ativo = true
-GROUP BY mes
-ORDER BY mes;
+-- 3. Quantidade de exercícios cadastrados por grupo muscular (quais músculos têm mais treinos?)
+SELECT 
+    grupo_muscular,
+    COUNT(*) AS quantidade_exercicios
+FROM exercicios
+GROUP BY grupo_muscular
+ORDER BY quantidade_exercicios DESC;
 
--- Total geral
-SELECT COUNT(*) AS total_alunos     FROM alunos  WHERE ativo = true;
-SELECT COUNT(*) AS total_treinos    FROM treinos WHERE ativo = true;
-SELECT COUNT(*) AS total_instrutores FROM instrutores WHERE ativo = true;
-SELECT COUNT(*) AS total_vinculos   FROM aluno_treinos;
+
+-- 4. Relatório de evolução: Maior, menor e peso atual de cada aluno
+-- (Apenas alunos que possuem registros na tabela progresso)
+SELECT 
+    a.nome AS nome_aluno,
+    MIN(p.peso) AS menor_peso_registrado,
+    MAX(p.peso) AS maior_peso_registrado,
+    ROUND(AVG(p.percentual_gordura), 2) AS media_percentual_gordura
+FROM alunos a
+INNER JOIN progresso p ON a.id = p.aluno_id
+GROUP BY a.id, a.nome;
+
+
+-- 5. Ranking dos treinos mais executados pelos alunos (Mais populares com base no Histórico)
+SELECT 
+    t.nome AS nome_treino,
+    COUNT(h.id) AS total_de_vezes_feito
+FROM historico h
+INNER JOIN treinos t ON h.treino_id = t.id
+GROUP BY t.id, t.nome
+ORDER BY total_de_vezes_feito DESC;
