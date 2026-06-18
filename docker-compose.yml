@@ -1,18 +1,10 @@
-version: '3.8'
 services:
-
   app:
     build: .
     container_name: gymflow-app
     restart: always
-    environment:
-      - PORT=3000
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=gymflow_user
-      - DB_PASSWORD=gymflow_pass
-      - DB_NAME=gymflow
-      - JWT_SECRET=segredo_super_secret
+    env_file:
+      - .env
     networks:
       - gymflow-network
     depends_on:
@@ -23,16 +15,18 @@ services:
     image: postgres:17-alpine
     container_name: gymflow-db
     restart: always
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: gymflow_user
-      POSTGRES_PASSWORD: gymflow_pass
-      POSTGRES_DB: gymflow
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - gymflow-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gymflow_user -d gymflow"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
