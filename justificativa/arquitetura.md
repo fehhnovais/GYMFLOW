@@ -84,3 +84,4 @@ de JOIN em casos simples, melhorando a performance de leitura.
 | aluno_id | historico | B-Tree | Histórico por aluno |
 | data_execucao | historico | B-Tree | Filtros por período |
 | aluno_id | progresso | B-Tree | Progresso por aluno |
+

@@ -1,17 +1,17 @@
-USE gymflow;
+USE gym_flow;
 
 -- 1. Quantidade de alunos vinculados a cada Personal Trainer
 SELECT 
     p.id AS personal_id,
     u.nome AS nome_personal,
     COUNT(a.id) AS total_de_alunos
-FROM personal p
+FROM personais p
 INNER JOIN usuarios u ON p.usuario_id = u.id
 LEFT JOIN alunos a ON a.personal_id = p.id
 GROUP BY p.id, u.nome;
 
 
--- 2. Média de idade, peso e altura dos alunos cadastrados no sistema
+-- 2. Média de idade, peso e altura dos alunos cadastrados no system
 SELECT 
     COUNT(id) AS total_alunos_avaliados,
     ROUND(AVG(idade), 1) AS media_idade,

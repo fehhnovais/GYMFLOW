@@ -1,4 +1,4 @@
-USE gymflow;
+USE gym_flow;
 
 -- 1. Listar todos os alunos junto com o nome do seu respectivo Personal Trainer
 SELECT 

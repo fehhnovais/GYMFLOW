@@ -1,105 +1,295 @@
-- Criação do Banco de Dados
-CREATE DATABASE gym_flow;
+-- =============================================
+-- GymFlow — Seed de dados ajustado para o projeto
+-- =============================================
+-- Versão compatível com outros SGDBs (sem generate_series)
+
+TRUNCATE TABLE progresso, historico, treino_exercicios, treinos, exercicios,
+alunos, personais, usuarios RESTART IDENTITY CASCADE;
 
 
-CREATE TABLE IF NOT EXISTS usuarios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(255) NOT NULL,
-    tipo VARCHAR(20) DEFAULT 'trainer',
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL
-);
+-- 1) Usuários (1..120): id explícito para compatibilidade
+INSERT INTO usuarios (id, nome, email, senha, tipo) VALUES
+  (1, 'Admin GymFlow', 'admin@gymflow.com', '$2b$10$hash1', 'admin'),
+  (2, 'Personal 2', 'personal2@example.com', '$2b$10$hash', 'personal'),
+  (3, 'Personal 3', 'personal3@example.com', '$2b$10$hash', 'personal'),
+  (4, 'Personal 4', 'personal4@example.com', '$2b$10$hash', 'personal'),
+  (5, 'Personal 5', 'personal5@example.com', '$2b$10$hash', 'personal'),
+  (6, 'Personal 6', 'personal6@example.com', '$2b$10$hash', 'personal'),
+  (7, 'Personal 7', 'personal7@example.com', '$2b$10$hash', 'personal'),
+  (8, 'Personal 8', 'personal8@example.com', '$2b$10$hash', 'personal'),
+  (9, 'Personal 9', 'personal9@example.com', '$2b$10$hash', 'personal'),
+  (10, 'Personal 10', 'personal10@example.com', '$2b$10$hash', 'personal'),
+  (11, 'Personal 11', 'personal11@example.com', '$2b$10$hash', 'personal'),
+  (12, 'User 12', 'user12@example.com', '$2b$10$hash', 'aluno'),
+  (13, 'User 13', 'user13@example.com', '$2b$10$hash', 'aluno'),
+  (14, 'User 14', 'user14@example.com', '$2b$10$hash', 'aluno'),
+  (15, 'User 15', 'user15@example.com', '$2b$10$hash', 'aluno'),
+  (16, 'User 16', 'user16@example.com', '$2b$10$hash', 'aluno'),
+  (17, 'User 17', 'user17@example.com', '$2b$10$hash', 'aluno'),
+  (18, 'User 18', 'user18@example.com', '$2b$10$hash', 'aluno'),
+  (19, 'User 19', 'user19@example.com', '$2b$10$hash', 'aluno'),
+  (20, 'User 20', 'user20@example.com', '$2b$10$hash', 'aluno'),
+  (21, 'User 21', 'user21@example.com', '$2b$10$hash', 'aluno'),
+  (22, 'User 22', 'user22@example.com', '$2b$10$hash', 'aluno'),
+  (23, 'User 23', 'user23@example.com', '$2b$10$hash', 'aluno'),
+  (24, 'User 24', 'user24@example.com', '$2b$10$hash', 'aluno'),
+  (25, 'User 25', 'user25@example.com', '$2b$10$hash', 'aluno'),
+  (26, 'User 26', 'user26@example.com', '$2b$10$hash', 'aluno'),
+  (27, 'User 27', 'user27@example.com', '$2b$10$hash', 'aluno'),
+  (28, 'User 28', 'user28@example.com', '$2b$10$hash', 'aluno'),
+  (29, 'User 29', 'user29@example.com', '$2b$10$hash', 'aluno'),
+  (30, 'User 30', 'user30@example.com', '$2b$10$hash', 'aluno'),
+  (31, 'User 31', 'user31@example.com', '$2b$10$hash', 'aluno'),
+  (32, 'User 32', 'user32@example.com', '$2b$10$hash', 'aluno'),
+  (33, 'User 33', 'user33@example.com', '$2b$10$hash', 'aluno'),
+  (34, 'User 34', 'user34@example.com', '$2b$10$hash', 'aluno'),
+  (35, 'User 35', 'user35@example.com', '$2b$10$hash', 'aluno'),
+  (36, 'User 36', 'user36@example.com', '$2b$10$hash', 'aluno'),
+  (37, 'User 37', 'user37@example.com', '$2b$10$hash', 'aluno'),
+  (38, 'User 38', 'user38@example.com', '$2b$10$hash', 'aluno'),
+  (39, 'User 39', 'user39@example.com', '$2b$10$hash', 'aluno'),
+  (40, 'User 40', 'user40@example.com', '$2b$10$hash', 'aluno'),
+  (41, 'User 41', 'user41@example.com', '$2b$10$hash', 'aluno'),
+  (42, 'User 42', 'user42@example.com', '$2b$10$hash', 'aluno'),
+  (43, 'User 43', 'user43@example.com', '$2b$10$hash', 'aluno'),
+  (44, 'User 44', 'user44@example.com', '$2b$10$hash', 'aluno'),
+  (45, 'User 45', 'user45@example.com', '$2b$10$hash', 'aluno'),
+  (46, 'User 46', 'user46@example.com', '$2b$10$hash', 'aluno'),
+  (47, 'User 47', 'user47@example.com', '$2b$10$hash', 'aluno'),
+  (48, 'User 48', 'user48@example.com', '$2b$10$hash', 'aluno'),
+  (49, 'User 49', 'user49@example.com', '$2b$10$hash', 'aluno'),
+  (50, 'User 50', 'user50@example.com', '$2b$10$hash', 'aluno'),
+  (51, 'User 51', 'user51@example.com', '$2b$10$hash', 'aluno'),
+  (52, 'User 52', 'user52@example.com', '$2b$10$hash', 'aluno'),
+  (53, 'User 53', 'user53@example.com', '$2b$10$hash', 'aluno'),
+  (54, 'User 54', 'user54@example.com', '$2b$10$hash', 'aluno'),
+  (55, 'User 55', 'user55@example.com', '$2b$10$hash', 'aluno'),
+  (56, 'User 56', 'user56@example.com', '$2b$10$hash', 'aluno'),
+  (57, 'User 57', 'user57@example.com', '$2b$10$hash', 'aluno'),
+  (58, 'User 58', 'user58@example.com', '$2b$10$hash', 'aluno'),
+  (59, 'User 59', 'user59@example.com', '$2b$10$hash', 'aluno'),
+  (60, 'User 60', 'user60@example.com', '$2b$10$hash', 'aluno'),
+  (61, 'User 61', 'user61@example.com', '$2b$10$hash', 'aluno'),
+  (62, 'User 62', 'user62@example.com', '$2b$10$hash', 'aluno'),
+  (63, 'User 63', 'user63@example.com', '$2b$10$hash', 'aluno'),
+  (64, 'User 64', 'user64@example.com', '$2b$10$hash', 'aluno'),
+  (65, 'User 65', 'user65@example.com', '$2b$10$hash', 'aluno'),
+  (66, 'User 66', 'user66@example.com', '$2b$10$hash', 'aluno'),
+  (67, 'User 67', 'user67@example.com', '$2b$10$hash', 'aluno'),
+  (68, 'User 68', 'user68@example.com', '$2b$10$hash', 'aluno'),
+  (69, 'User 69', 'user69@example.com', '$2b$10$hash', 'aluno'),
+  (70, 'User 70', 'user70@example.com', '$2b$10$hash', 'aluno'),
+  (71, 'User 71', 'user71@example.com', '$2b$10$hash', 'aluno'),
+  (72, 'User 72', 'user72@example.com', '$2b$10$hash', 'aluno'),
+  (73, 'User 73', 'user73@example.com', '$2b$10$hash', 'aluno'),
+  (74, 'User 74', 'user74@example.com', '$2b$10$hash', 'aluno'),
+  (75, 'User 75', 'user75@example.com', '$2b$10$hash', 'aluno'),
+  (76, 'User 76', 'user76@example.com', '$2b$10$hash', 'aluno'),
+  (77, 'User 77', 'user77@example.com', '$2b$10$hash', 'aluno'),
+  (78, 'User 78', 'user78@example.com', '$2b$10$hash', 'aluno'),
+  (79, 'User 79', 'user79@example.com', '$2b$10$hash', 'aluno'),
+  (80, 'User 80', 'user80@example.com', '$2b$10$hash', 'aluno'),
+  (81, 'User 81', 'user81@example.com', '$2b$10$hash', 'aluno'),
+  (82, 'User 82', 'user82@example.com', '$2b$10$hash', 'aluno'),
+  (83, 'User 83', 'user83@example.com', '$2b$10$hash', 'aluno'),
+  (84, 'User 84', 'user84@example.com', '$2b$10$hash', 'aluno'),
+  (85, 'User 85', 'user85@example.com', '$2b$10$hash', 'aluno'),
+  (86, 'User 86', 'user86@example.com', '$2b$10$hash', 'aluno'),
+  (87, 'User 87', 'user87@example.com', '$2b$10$hash', 'aluno'),
+  (88, 'User 88', 'user88@example.com', '$2b$10$hash', 'aluno'),
+  (89, 'User 89', 'user89@example.com', '$2b$10$hash', 'aluno'),
+  (90, 'User 90', 'user90@example.com', '$2b$10$hash', 'aluno'),
+  (91, 'User 91', 'user91@example.com', '$2b$10$hash', 'aluno'),
+  (92, 'User 92', 'user92@example.com', '$2b$10$hash', 'aluno'),
+  (93, 'User 93', 'user93@example.com', '$2b$10$hash', 'aluno'),
+  (94, 'User 94', 'user94@example.com', '$2b$10$hash', 'aluno'),
+  (95, 'User 95', 'user95@example.com', '$2b$10$hash', 'aluno'),
+  (96, 'User 96', 'user96@example.com', '$2b$10$hash', 'aluno'),
+  (97, 'User 97', 'user97@example.com', '$2b$10$hash', 'aluno'),
+  (98, 'User 98', 'user98@example.com', '$2b$10$hash', 'aluno'),
+  (99, 'User 99', 'user99@example.com', '$2b$10$hash', 'aluno'),
+  (100, 'User 100', 'user100@example.com', '$2b$10$hash', 'aluno'),
+  (101, 'User 101', 'user101@example.com', '$2b$10$hash', 'aluno'),
+  (102, 'User 102', 'user102@example.com', '$2b$10$hash', 'aluno'),
+  (103, 'User 103', 'user103@example.com', '$2b$10$hash', 'aluno'),
+  (104, 'User 104', 'user104@example.com', '$2b$10$hash', 'aluno'),
+  (105, 'User 105', 'user105@example.com', '$2b$10$hash', 'aluno'),
+  (106, 'User 106', 'user106@example.com', '$2b$10$hash', 'aluno'),
+  (107, 'User 107', 'user107@example.com', '$2b$10$hash', 'aluno'),
+  (108, 'User 108', 'user108@example.com', '$2b$10$hash', 'aluno'),
+  (109, 'User 109', 'user109@example.com', '$2b$10$hash', 'aluno'),
+  (110, 'User 110', 'user110@example.com', '$2b$10$hash', 'aluno'),
+  (111, 'User 111', 'user111@example.com', '$2b$10$hash', 'aluno'),
+  (112, 'User 112', 'user112@example.com', '$2b$10$hash', 'aluno'),
+  (113, 'User 113', 'user113@example.com', '$2b$10$hash', 'aluno'),
+  (114, 'User 114', 'user114@example.com', '$2b$10$hash', 'aluno'),
+  (115, 'User 115', 'user115@example.com', '$2b$10$hash', 'aluno'),
+  (116, 'User 116', 'user116@example.com', '$2b$10$hash', 'aluno'),
+  (117, 'User 117', 'user117@example.com', '$2b$10$hash', 'aluno'),
+  (118, 'User 118', 'user118@example.com', '$2b$10$hash', 'aluno'),
+  (119, 'User 119', 'user119@example.com', '$2b$10$hash', 'aluno'),
+  (120, 'User 120', 'user120@example.com', '$2b$10$hash', 'aluno');
 
--- 2. Tabela: personal
-CREATE TABLE IF NOT EXISTS personal (
-    id SERIAL PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    CONSTRAINT fk_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+INSERT INTO personais (usuario_id) VALUES
+  (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12);
 
--- 3. Tabela: alunos
-CREATE TABLE IF NOT EXISTS alunos (
-    id SERIAL PRIMARY KEY,
-    usuario_id INT NOT NULL,
-    personal_id INT NULL,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    idade INT,
-    peso DECIMAL(5, 2),
-    altura DECIMAL(4, 2),
-    objetivo VARCHAR(50),
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    CONSTRAINT fk_usuario_aluno FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_personal_aluno FOREIGN KEY (personal_id) REFERENCES personal(id) ON DELETE SET NULL ON UPDATE CASCADE
-);
+-- 3) Alunos: mapeia usuarios 12..120 para personalidades 2..11 em ciclo
+INSERT INTO alunos (usuario_id, personais_id, nome, email, idade, peso, altura, objetivo) VALUES
+  (12, 2, 'User 12', 'user12@example.com', 23, 62.00, 1.62, 'Hipertrofia'),
+  (13, 3, 'User 13', 'user13@example.com', 24, 63.00, 1.63, 'Emagrecimento'),
+  (14, 4, 'User 14', 'user14@example.com', 25, 64.00, 1.64, 'Definição'),
+  (15, 5, 'User 15', 'user15@example.com', 26, 65.00, 1.65, 'Hipertrofia'),
+  (16, 6, 'User 16', 'user16@example.com', 27, 66.00, 1.66, 'Emagrecimento'),
+  (17, 7, 'User 17', 'user17@example.com', 28, 67.00, 1.67, 'Definição'),
+  (18, 8, 'User 18', 'user18@example.com', 29, 68.00, 1.68, 'Hipertrofia'),
+  (19, 9, 'User 19', 'user19@example.com', 30, 69.00, 1.69, 'Emagrecimento'),
+  (20, 10, 'User 20', 'user20@example.com', 31, 70.00, 1.70, 'Definição'),
+  (21, 11, 'User 21', 'user21@example.com', 22, 71.00, 1.71, 'Hipertrofia'),
+  (22, 2, 'User 22', 'user22@example.com', 23, 72.00, 1.72, 'Emagrecimento'),
+  (23, 3, 'User 23', 'user23@example.com', 24, 73.00, 1.73, 'Definição'),
+  (24, 4, 'User 24', 'user24@example.com', 25, 74.00, 1.74, 'Hipertrofia'),
+  (25, 5, 'User 25', 'user25@example.com', 26, 75.00, 1.75, 'Emagrecimento'),
+  (26, 6, 'User 26', 'user26@example.com', 27, 76.00, 1.76, 'Definição'),
+  (27, 7, 'User 27', 'user27@example.com', 28, 77.00, 1.77, 'Hipertrofia'),
+  (28, 8, 'User 28', 'user28@example.com', 29, 78.00, 1.78, 'Emagrecimento'),
+  (29, 9, 'User 29', 'user29@example.com', 30, 79.00, 1.79, 'Definição'),
+  (30, 10, 'User 30', 'user30@example.com', 31, 80.00, 1.80, 'Hipertrofia'),
+  (31, 11, 'User 31', 'user31@example.com', 22, 61.50, 1.61, 'Emagrecimento'),
+  (32, 2, 'User 32', 'user32@example.com', 23, 62.50, 1.62, 'Definição'),
+  (33, 3, 'User 33', 'user33@example.com', 24, 63.50, 1.63, 'Hipertrofia'),
+  (34, 4, 'User 34', 'user34@example.com', 25, 64.50, 1.64, 'Emagrecimento'),
+  (35, 5, 'User 35', 'user35@example.com', 26, 65.50, 1.65, 'Definição'),
+  (36, 6, 'User 36', 'user36@example.com', 27, 66.50, 1.66, 'Hipertrofia'),
+  (37, 7, 'User 37', 'user37@example.com', 28, 67.50, 1.67, 'Emagrecimento'),
+  (38, 8, 'User 38', 'user38@example.com', 29, 68.50, 1.68, 'Definição'),
+  (39, 9, 'User 39', 'user39@example.com', 30, 69.50, 1.69, 'Hipertrofia'),
+  (40, 10, 'User 40', 'user40@example.com', 31, 70.50, 1.70, 'Emagrecimento'),
+  (41, 11, 'User 41', 'user41@example.com', 22, 61.80, 1.62, 'Definição'),
+  (42, 2, 'User 42', 'user42@example.com', 23, 62.80, 1.63, 'Hipertrofia'),
+  (43, 3, 'User 43', 'user43@example.com', 24, 63.80, 1.64, 'Emagrecimento'),
+  (44, 4, 'User 44', 'user44@example.com', 25, 64.80, 1.65, 'Definição'),
+  (45, 5, 'User 45', 'user45@example.com', 26, 65.80, 1.66, 'Hipertrofia'),
+  (46, 6, 'User 46', 'user46@example.com', 27, 66.80, 1.67, 'Emagrecimento'),
+  (47, 7, 'User 47', 'user47@example.com', 28, 67.80, 1.68, 'Definição'),
+  (48, 8, 'User 48', 'user48@example.com', 29, 68.80, 1.69, 'Hipertrofia'),
+  (49, 9, 'User 49', 'user49@example.com', 30, 69.80, 1.70, 'Emagrecimento'),
+  (50, 10, 'User 50', 'user50@example.com', 31, 70.80, 1.71, 'Definição'),
+  (51, 11, 'User 51', 'user51@example.com', 22, 61.20, 1.60, 'Hipertrofia'),
+  (52, 2, 'User 52', 'user52@example.com', 23, 62.20, 1.61, 'Emagrecimento'),
+  (53, 3, 'User 53', 'user53@example.com', 24, 63.20, 1.62, 'Definição'),
+  (54, 4, 'User 54', 'user54@example.com', 25, 64.20, 1.63, 'Hipertrofia'),
+  (55, 5, 'User 55', 'user55@example.com', 26, 65.20, 1.64, 'Emagrecimento'),
+  (56, 6, 'User 56', 'user56@example.com', 27, 66.20, 1.65, 'Definição'),
+  (57, 7, 'User 57', 'user57@example.com', 28, 67.20, 1.66, 'Hipertrofia'),
+  (58, 8, 'User 58', 'user58@example.com', 29, 68.20, 1.67, 'Emagrecimento'),
+  (59, 9, 'User 59', 'user59@example.com', 30, 69.20, 1.68, 'Definição'),
+  (60, 10, 'User 60', 'user60@example.com', 31, 70.20, 1.69, 'Hipertrofia'),
+  (61, 11, 'User 61', 'user61@example.com', 22, 61.40, 1.70, 'Emagrecimento'),
+  (62, 2, 'User 62', 'user62@example.com', 23, 62.40, 1.71, 'Definição'),
+  (63, 3, 'User 63', 'user63@example.com', 24, 63.40, 1.72, 'Hipertrofia'),
+  (64, 4, 'User 64', 'user64@example.com', 25, 64.40, 1.73, 'Emagrecimento'),
+  (65, 5, 'User 65', 'user65@example.com', 26, 65.40, 1.74, 'Definição'),
+  (66, 6, 'User 66', 'user66@example.com', 27, 66.40, 1.75, 'Hipertrofia'),
+  (67, 7, 'User 67', 'user67@example.com', 28, 67.40, 1.76, 'Emagrecimento'),
+  (68, 8, 'User 68', 'user68@example.com', 29, 68.40, 1.77, 'Definição'),
+  (69, 9, 'User 69', 'user69@example.com', 30, 69.40, 1.78, 'Hipertrofia'),
+  (70, 10, 'User 70', 'user70@example.com', 31, 70.40, 1.79, 'Emagrecimento'),
+  (71, 11, 'User 71', 'user71@example.com', 22, 61.60, 1.80, 'Definição'),
+  (72, 2, 'User 72', 'user72@example.com', 23, 62.60, 1.81, 'Hipertrofia'),
+  (73, 3, 'User 73', 'user73@example.com', 24, 63.60, 1.82, 'Emagrecimento'),
+  (74, 4, 'User 74', 'user74@example.com', 25, 64.60, 1.83, 'Definição'),
+  (75, 5, 'User 75', 'user75@example.com', 26, 65.60, 1.84, 'Hipertrofia'),
+  (76, 6, 'User 76', 'user76@example.com', 27, 66.60, 1.85, 'Emagrecimento'),
+  (77, 7, 'User 77', 'user77@example.com', 28, 67.60, 1.86, 'Definição'),
+  (78, 8, 'User 78', 'user78@example.com', 29, 68.60, 1.87, 'Hipertrofia'),
+  (79, 9, 'User 79', 'user79@example.com', 30, 69.60, 1.88, 'Emagrecimento'),
+  (80, 10, 'User 80', 'user80@example.com', 31, 70.60, 1.89, 'Definição'),
+  (81, 11, 'User 81', 'user81@example.com', 22, 61.70, 1.70, 'Hipertrofia'),
+  (82, 2, 'User 82', 'user82@example.com', 23, 62.70, 1.71, 'Emagrecimento'),
+  (83, 3, 'User 83', 'user83@example.com', 24, 63.70, 1.72, 'Definição'),
+  (84, 4, 'User 84', 'user84@example.com', 25, 64.70, 1.73, 'Hipertrofia'),
+  (85, 5, 'User 85', 'user85@example.com', 26, 65.70, 1.74, 'Emagrecimento'),
+  (86, 6, 'User 86', 'user86@example.com', 27, 66.70, 1.75, 'Definição'),
+  (87, 7, 'User 87', 'user87@example.com', 28, 67.70, 1.76, 'Hipertrofia'),
+  (88, 8, 'User 88', 'user88@example.com', 29, 68.70, 1.77, 'Emagrecimento'),
+  (89, 9, 'User 89', 'user89@example.com', 30, 69.70, 1.78, 'Definição'),
+  (90, 10, 'User 90', 'user90@example.com', 31, 70.70, 1.79, 'Hipertrofia'),
+  (91, 11, 'User 91', 'user91@example.com', 22, 61.90, 1.80, 'Emagrecimento'),
+  (92, 2, 'User 92', 'user92@example.com', 23, 62.90, 1.81, 'Definição'),
+  (93, 3, 'User 93', 'user93@example.com', 24, 63.90, 1.82, 'Hipertrofia'),
+  (94, 4, 'User 94', 'user94@example.com', 25, 64.90, 1.83, 'Emagrecimento'),
+  (95, 5, 'User 95', 'user95@example.com', 26, 65.90, 1.84, 'Definição'),
+  (96, 6, 'User 96', 'user96@example.com', 27, 66.90, 1.85, 'Hipertrofia'),
+  (97, 7, 'User 97', 'user97@example.com', 28, 67.90, 1.86, 'Emagrecimento'),
+  (98, 8, 'User 98', 'user98@example.com', 29, 68.90, 1.87, 'Definição'),
+  (99, 9, 'User 99', 'user99@example.com', 30, 69.90, 1.88, 'Hipertrofia'),
+  (100, 10, 'User 100', 'user100@example.com', 31, 70.90, 1.89, 'Emagrecimento'),
+  (101, 11, 'User 101', 'user101@example.com', 22, 61.10, 1.60, 'Definição'),
+  (102, 2, 'User 102', 'user102@example.com', 23, 62.10, 1.61, 'Hipertrofia'),
+  (103, 3, 'User 103', 'user103@example.com', 24, 63.10, 1.62, 'Emagrecimento'),
+  (104, 4, 'User 104', 'user104@example.com', 25, 64.10, 1.63, 'Definição'),
+  (105, 5, 'User 105', 'user105@example.com', 26, 65.10, 1.64, 'Hipertrofia'),
+  (106, 6, 'User 106', 'user106@example.com', 27, 66.10, 1.65, 'Emagrecimento'),
+  (107, 7, 'User 107', 'user107@example.com', 28, 67.10, 1.66, 'Definição'),
+  (108, 8, 'User 108', 'user108@example.com', 29, 68.10, 1.67, 'Hipertrofia'),
+  (109, 9, 'User 109', 'user109@example.com', 30, 69.10, 1.68, 'Emagrecimento'),
+  (110, 10, 'User 110', 'user110@example.com', 31, 70.10, 1.69, 'Definição'),
+  (111, 11, 'User 111', 'user111@example.com', 22, 61.30, 1.70, 'Hipertrofia'),
+  (112, 2, 'User 112', 'user112@example.com', 23, 62.30, 1.71, 'Emagrecimento'),
+  (113, 3, 'User 113', 'user113@example.com', 24, 63.30, 1.72, 'Definição'),
+  (114, 4, 'User 114', 'user114@example.com', 25, 64.30, 1.73, 'Hipertrofia'),
+  (115, 5, 'User 115', 'user115@example.com', 26, 65.30, 1.74, 'Emagrecimento'),
+  (116, 6, 'User 116', 'user116@example.com', 27, 66.30, 1.75, 'Definição'),
+  (117, 7, 'User 117', 'user117@example.com', 28, 67.30, 1.76, 'Hipertrofia'),
+  (118, 8, 'User 118', 'user118@example.com', 29, 68.30, 1.77, 'Emagrecimento'),
+  (119, 9, 'User 119', 'user119@example.com', 30, 69.30, 1.78, 'Definição'),
+  (120, 10, 'User 120', 'user120@example.com', 31, 70.30, 1.79, 'Hipertrofia');
 
--- 4. Tabela: exercicios
-CREATE TABLE IF NOT EXISTS exercicios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    grupo_muscular VARCHAR(50) NOT NULL,
-    descricao TEXT,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL
-);
+-- 4) Exercícios (10 básicos)
+INSERT INTO exercicios (nome, grupo_muscular, descricao) VALUES
+  ('Supino Reto', 'Peito', 'Peitoral maior com barra'),
+  ('Puxada Frontal', 'Costas', 'Dorsais com polia alta'),
+  ('Agachamento', 'Pernas', 'Quadríceps e glúteos'),
+  ('Leg Press', 'Pernas', 'Máquina leg press'),
+  ('Rosca Direta', 'Bíceps', 'Rosca com barra'),
+  ('Tríceps Corda', 'Tríceps', 'Tríceps na polia'),
+  ('Desenvolvimento', 'Ombro', 'Ombros com halteres'),
+  ('Prancha', 'Abdomen', 'Isometria de core'),
+  ('Stiff', 'Posterior', 'Isquiotibiais e glúteos'),
+  ('Flexão de Braço', 'Peito', 'Peso corporal');
 
--- 5. Tabela: treinos
-CREATE TABLE IF NOT EXISTS treinos (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    personal_id INT NULL,
-    nome VARCHAR(50) NOT NULL,
-    descricao TEXT,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    CONSTRAINT fk_aluno_treino FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_personal_treino FOREIGN KEY (personal_id) REFERENCES personal(id) ON DELETE SET NULL ON UPDATE CASCADE
-);
+INSERT INTO treinos (aluno_id, personais_id, nome, descricao) VALUES
+  (12, 2, 'Treino A - Peito/Tríceps', 'Foco em empurrar'),
+  (12, 2, 'Treino B - Costas/Bíceps', 'Foco em puxar'),
+  (13, 3, 'Treino C - Pernas', 'Força de pernas'),
+  (14, 4, 'Treino Full Body', 'Treino completo');
 
--- 6. Tabela: treino_exercicios (Relacionamento N:N)
-CREATE TABLE IF NOT EXISTS treino_exercicios (
-    id SERIAL PRIMARY KEY,
-    treino_id INT NOT NULL,
-    exercicio_id INT NOT NULL,
-    series INT NOT NULL,
-    repeticoes INT NOT NULL,
-    carga DECIMAL(5, 2),
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    CONSTRAINT fk_treino FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_exercicio FOREIGN KEY (exercicio_id) REFERENCES exercicios(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+-- 6) Treino_Exercicios: associações simples
+INSERT INTO treino_exercicios (treino_id, exercicio_id, series, repeticoes, carga) VALUES
+  (1, 1, 4, 10, 80.00),
+  (1, 2, 3, 12, 30.00),
+  (2, 3, 5, 5, 100.00),
+  (3, 4, 4, 10, 60.00);
 
--- 7. Tabela: historico
-CREATE TABLE IF NOT EXISTS historico (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    treino_id INT NOT NULL,
-    data_execucao DATE NOT NULL,
-    observacoes TEXT,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    CONSTRAINT fk_aluno_historico FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_treino_historico FOREIGN KEY (treino_id) REFERENCES treinos(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+-- 7) Histórico de exemplo
+INSERT INTO historico (aluno_id, treino_id, data_execucao, observacoes) VALUES
+  (12, 1, '2025-01-06', 'Ótimo treino'),
+  (12, 2, '2025-01-08', 'Cansativo mas completo'),
+  (13, 3, '2025-01-10', 'Bom ritmo');
 
--- 8. Tabela: progresso
-CREATE TABLE IF NOT EXISTS progresso (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    peso DECIMAL(5, 2),
-    percentual_gordura DECIMAL(5, 2),
-    data_registro DATE NOT NULL,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
-    CONSTRAINT fk_aluno_progresso FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE
-);
+-- 8) Progresso: 2 registros para alguns alunos
+INSERT INTO progresso (aluno_id, peso, percentual_gordura, data_registro) VALUES
+  (12, 62.00, 22.5, '2025-01-01'),
+  (12, 61.50, 21.9, '2025-01-15'),
+  (13, 70.00, 24.0, '2025-01-01'),
+  (13, 69.50, 23.5, '2025-01-15');
 
-
--- 1. LIMPEZA TOTAL (Garante que o banco resete na ordem correta, evitando erros de FK)
-TRUNCATE TABLE progresso, historico, treino_exercicios, treinos, exercicios, alunos, personal, usuarios RESTART IDENTITY CASCADE;
+-- Ajusta sequences (Postgres): evita conflito após inserts com ids explícitos
+SELECT setval(pg_get_serial_sequence('usuarios','id'), (SELECT COALESCE(MAX(id),0) FROM usuarios));
+SELECT setval(pg_get_serial_sequence('personais','id'), (SELECT COALESCE(MAX(id),0) FROM personais));
+SELECT setval(pg_get_serial_sequence('alunos','id'), (SELECT COALESCE(MAX(id),0) FROM alunos));
+SELECT setval(pg_get_serial_sequence('exercicios','id'), (SELECT COALESCE(MAX(id),0) FROM exercicios));
+SELECT setval(pg_get_serial_sequence('treinos','id'), (SELECT COALESCE(MAX(id),0) FROM treinos));
+SELECT setval(pg_get_serial_sequence('treino_exercicios','id'), (SELECT COALESCE(MAX(id),0) FROM treino_exercicios));
+SELECT setval(pg_get_serial_sequence('historico','id'), (SELECT COALESCE(MAX(id),0) FROM historico));
+SELECT setval(pg_get_serial_sequence('progresso','id'), (SELECT COALESCE(MAX(id),0) FROM progresso));
