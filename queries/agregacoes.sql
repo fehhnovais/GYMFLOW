@@ -2,12 +2,12 @@ USE gym_flow;
 
 -- 1. Quantidade de alunos vinculados a cada Personal Trainer
 SELECT 
-    p.id AS personal_id,
+    p.id AS personais_id,
     u.nome AS nome_personal,
     COUNT(a.id) AS total_de_alunos
 FROM personais p
 INNER JOIN usuarios u ON p.usuario_id = u.id
-LEFT JOIN alunos a ON a.personal_id = p.id
+LEFT JOIN alunos a ON a.personais_id = p.id
 GROUP BY p.id, u.nome;
 
 
