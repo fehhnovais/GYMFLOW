@@ -2,7 +2,7 @@ name: CI/CD - Build, Push e Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, Carina]
   workflow_dispatch:
 
 env:
