@@ -1,4 +1,4 @@
-USE gymflow;
+USE gym_flow;
 
 -- ==============================================================================
 -- 1. NOVOS INSERTS: usuarios (IDs de 4 a 8)
@@ -18,7 +18,7 @@ INSERT INTO usuarios (id, nome, email, senha, tipo, "createdAt", "updatedAt") VA
 -- 2. NOVOS INSERTS: personais (ID 2 vinculado ao usuário 5)
 -- ==============================================================================
 
-INSERT INTO personal (id, usuario_id, "createdAt", "updatedAt") VALUES
+INSERT INTO personais (id, usuario_id, "createdAt", "updatedAt") VALUES
 (1, 1, NOW(), NOW()), -- Lucas Silva vira o Personal ID 1
 (2, 5, NOW(), NOW()); -- Roberto Almeida vira o Personal ID 2
 
@@ -104,7 +104,7 @@ INSERT INTO progresso (id, aluno_id, peso, percentual_gordura, data_registro, "c
 -- ATUALIZAÇÃO AUTOMÁTICA DOS SEQUENCIADORES (Garante que os próximos inserts via Node funcionem)
 -- ==============================================================================
 SELECT setval('usuarios_id_seq', COALESCE((SELECT MAX(id)+1 FROM usuarios), 1), false);
-SELECT setval('personal_id_seq', COALESCE((SELECT MAX(id)+1 FROM personal), 1), false);
+SELECT setval('personais_id_seq', COALESCE((SELECT MAX(id)+1 FROM personais), 1), false);
 SELECT setval('alunos_id_seq', COALESCE((SELECT MAX(id)+1 FROM alunos), 1), false);
 SELECT setval('exercicios_id_seq', COALESCE((SELECT MAX(id)+1 FROM exercicios), 1), false);
 SELECT setval('treinos_id_seq', COALESCE((SELECT MAX(id)+1 FROM treinos), 1), false);

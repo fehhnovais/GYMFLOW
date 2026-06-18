@@ -289,6 +289,38 @@ CMD ["npm", "run", "dev"]
 2. Inicie o banco de dados e o servidor com `docker compose up --build`.
 3. Use ferramentas como Postman ou Insomnia para testar os endpoints.
 
+## Scripts SQL (setup e seed)
+
+Para criar o banco e popular os dados de teste use os scripts em `scripts/setup.sql` e `scripts/seed/seed.sql`.
+
+Variáveis de ambiente esperadas:
+- `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (por padrão usamos `gymflow` como nome do DB)
+
+Exemplo com `psql` (Postgres):
+
+```bash
+# cria o banco (separado, pois CREATE DATABASE precisa ser executado fora do DB alvo)
+psql -U <user> -h <host> -f scripts/setup.sql
+
+# popula os dados (após criar o DB)
+psql -U <user> -h <host> -d gymflow -f scripts/seed/seed.sql
+```
+
+Após rodar `seed.sql` (que contém inserts com ids explícitos), execute os `setval` que já estão no final do arquivo para ajustar as sequences (Postgres).
+ 
+ Com Docker Compose, o serviço `db` já monta os scripts de `scripts/setup.sql` e `scripts/seed/seed.sql` em `/docker-entrypoint-initdb.d`.
+ Na primeira inicialização de `postgres_data`, o Postgres executa automaticamente esses scripts e cria o banco `gymflow`.
+ Se quiser reaplicar os scripts, apague o volume `postgres_data` antes de subir o compose novamente.
+
+## Arquivos adicionados para entrega
+- `modelagem/der.md` — diagrama ER em Mermaid (exportar para PNG/SVG para a apresentação)
+- `modelagem/modelo_logico.md` — resumo do modelo lógico e observações de normalização
+- `justificativa/indices.md` — justificativa dos índices aplicados
+- `queries/consultas_criticas.sql` — 5 consultas críticas para avaliação
+- `queries/explain_instructions.md` — instruções para executar `EXPLAIN ANALYZE` e coletar evidências
+
+Se quiser, posso exportar o `mermaid` do `modelagem/der.md` para PNG aqui, ou gerar os `EXPLAIN ANALYZE` se me permitir executar os scripts no seu banco.
+
 ## O que o projeto deve demonstrar
 - API REST organizada e fácil de manter
 - Modelagem relacional consistente
