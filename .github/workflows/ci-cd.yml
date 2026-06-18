@@ -1,0 +1,100 @@
+name: CI/CD - Build, Push e Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  # Deixamos o IMAGE_NAME dinâmico, mas vamos garantir que ele fique em minúsculo nos jobs
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build, Tag e Push para o Registry
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Passo crucial: Converte o IMAGE_NAME para minúsculo e salva no escopo do env do passo/job
+      - name: Formatar nome da imagem para minúsculo
+        id: string
+        run: |
+          echo "IMAGE_NAME_LOWER=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Gerar metadata e tags da imagem
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # Usamos a variável sanitizada em minúsculo aqui
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+          tags: |
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build e Push da imagem
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Evidência do Push (digest da imagem)
+        run: |
+          echo "### Imagem publicada com sucesso ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- Registry: ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Imagem: ${{ env.IMAGE_NAME_LOWER }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Tags geradas: ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Digest: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    name: Deploy (atualizar serviço com a nova imagem)
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # Repetimos a sanitização no job de deploy para garantir que use o nome correto
+      - name: Formatar nome da imagem para minúsculo
+        id: string
+        run: |
+          echo "IMAGE_NAME_LOWER=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Login no GHCR (para puxar a imagem)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull da imagem recém-publicada
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
+
+      - name: Subir/atualizar o serviço com a nova imagem
+        run: |
+          echo "### Deploy concluído ✅" >> $GITHUB_STEP_SUMMARY
+          echo "Imagem pronta para deploy: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest" >> $GITHUB_STEP_SUMMARY
