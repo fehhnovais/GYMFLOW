@@ -134,7 +134,7 @@ INSERT INTO personais (usuario_id) VALUES
   (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12);
 
 -- 3) Alunos: mapeia usuarios 12..120 para personalidades 2..11 em ciclo
-INSERT INTO alunos (usuario_id, personais_id, nome, email, idade, peso, altura, objetivo) VALUES
+INSERT INTO alunos (usuario_id, personal_id, nome, email, idade, peso, altura, objetivo) VALUES
   (12, 2, 'User 12', 'user12@example.com', 23, 62.00, 1.62, 'Hipertrofia'),
   (13, 3, 'User 13', 'user13@example.com', 24, 63.00, 1.63, 'Emagrecimento'),
   (14, 4, 'User 14', 'user14@example.com', 25, 64.00, 1.64, 'Definição'),
@@ -258,7 +258,7 @@ INSERT INTO exercicios (nome, grupo_muscular, descricao) VALUES
   ('Stiff', 'Posterior', 'Isquiotibiais e glúteos'),
   ('Flexão de Braço', 'Peito', 'Peso corporal');
 
-INSERT INTO treinos (aluno_id, personais_id, nome, descricao) VALUES
+INSERT INTO treinos (aluno_id, personal_id, nome, descricao) VALUES
   (12, 2, 'Treino A - Peito/Tríceps', 'Foco em empurrar'),
   (12, 2, 'Treino B - Costas/Bíceps', 'Foco em puxar'),
   (13, 3, 'Treino C - Pernas', 'Força de pernas'),
