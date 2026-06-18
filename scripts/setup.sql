@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS personais (
 CREATE TABLE IF NOT EXISTS alunos (
   id SERIAL PRIMARY KEY,
   usuario_id INT NOT NULL,
-  personais_id INT NULL,
+  personal_id INT NULL,
   nome VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE,
   idade INT,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS alunos (
   "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_usuario_aluno FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT fk_personal_aluno FOREIGN KEY (personais_id) REFERENCES personais(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_personal_aluno FOREIGN KEY (personal_id) REFERENCES personais(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS exercicios (
@@ -51,13 +51,13 @@ CREATE TABLE IF NOT EXISTS exercicios (
 CREATE TABLE IF NOT EXISTS treinos (
     id SERIAL PRIMARY KEY,
     aluno_id INT NOT NULL,
-    personais_id INT NULL,
+    personal_id INT NULL,
     nome VARCHAR(50) NOT NULL,
     descricao TEXT,
     "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
     "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_aluno_treino FOREIGN KEY (aluno_id) REFERENCES alunos(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_personal_treino FOREIGN KEY (personais_id) REFERENCES personais(id) ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT fk_personal_treino FOREIGN KEY (personal_id) REFERENCES personais(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS treino_exercicios (
@@ -103,7 +103,7 @@ TRUNCATE TABLE progresso, historico, treino_exercicios, treinos, exercicios, alu
 
 CREATE INDEX idx_usuarios_email ON usuarios (email);
 CREATE INDEX idx_alunos_usuario_id ON alunos (usuario_id);
-CREATE INDEX idx_alunos_personais_id ON alunos (personais_id);
+CREATE INDEX idx_alunos_personal_id ON alunos (personal_id);
 CREATE INDEX idx_treinos_aluno_id ON treinos (aluno_id);
 CREATE INDEX idx_treino_exercicios_treino_id ON treino_exercicios (treino_id);
 CREATE INDEX idx_historico_aluno_id ON historico (aluno_id);

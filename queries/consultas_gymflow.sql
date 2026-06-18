@@ -7,7 +7,7 @@ SELECT
     a.objetivo,
     u_personal.nome AS nome_personal
 FROM alunos a
-INNER JOIN personais p ON a.personais_id = p.id
+INNER JOIN personais p ON a.personal_id = p.id
 INNER JOIN usuarios u_personal ON p.usuario_id = u_personal.id;
 
 

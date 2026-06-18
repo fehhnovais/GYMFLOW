@@ -25,7 +25,7 @@ INSERT INTO personais (id, usuario_id, "createdAt", "updatedAt") VALUES
 -- ==============================================================================
 -- 3. NOVOS INSERTS: alunos (IDs de 3 a 7 - Vinculados aos novos usuários e aos personais 1 e 2)
 -- ==============================================================================
-INSERT INTO alunos (id, usuario_id, personais_id, nome, email, idade, peso, altura, objetivo, "createdAt", "updatedAt") VALUES
+INSERT INTO alunos (id, usuario_id, personal_id, nome, email, idade, peso, altura, objetivo, "createdAt", "updatedAt") VALUES
 (1, 2, 1, 'Fernanda Souza', 'fernanda.aluna@email.com', 26, 62.50, 1.65, 'Hipertrofia', NOW(), NOW()),
 (2, 3, 1, 'Carlos Henrique', 'carlos.aluno@email.com', 30, 84.20, 1.78, 'Emagrecimento', NOW(), NOW()),
 (3, 4, 1, 'Mariana Costa', 'mariana@email.com', 28, 58.00, 1.68, 'Definição Muscular', NOW(), NOW()),
@@ -51,7 +51,7 @@ INSERT INTO exercicios (id, nome, grupo_muscular, descricao, "createdAt", "updat
 -- ==============================================================================
 -- 5. NOVOS INSERTS: treinos (IDs de 4 a 8)
 -- ==============================================================================
-INSERT INTO treinos (id, aluno_id, personais_id, nome, descricao, "createdAt", "updatedAt") VALUES
+INSERT INTO treinos (id, aluno_id, personal_id, nome, descricao, "createdAt", "updatedAt") VALUES
 (1, 1, 1, 'Treino A - Membros Inferiores', 'Foco em quadríceps e glúteos', NOW(), NOW()),
 (2, 1, 1, 'Treino B - Membros Superiores', 'Foco em costas e braços', NOW(), NOW()),
 (3, 2, 1, 'Treino Geral - Adaptação', 'Circuito focado em queima calórica', NOW(), NOW()),
@@ -104,7 +104,7 @@ INSERT INTO progresso (id, aluno_id, peso, percentual_gordura, data_registro, "c
 -- ATUALIZAÇÃO AUTOMÁTICA DOS SEQUENCIADORES (Garante que os próximos inserts via Node funcionem)
 -- ==============================================================================
 SELECT setval('usuarios_id_seq', COALESCE((SELECT MAX(id)+1 FROM usuarios), 1), false);
-SELECT setval('personais_id_seq', COALESCE((SELECT MAX(id)+1 FROM personais), 1), false);
+SELECT setval('personal_id_seq', COALESCE((SELECT MAX(id)+1 FROM personais), 1), false);
 SELECT setval('alunos_id_seq', COALESCE((SELECT MAX(id)+1 FROM alunos), 1), false);
 SELECT setval('exercicios_id_seq', COALESCE((SELECT MAX(id)+1 FROM exercicios), 1), false);
 SELECT setval('treinos_id_seq', COALESCE((SELECT MAX(id)+1 FROM treinos), 1), false);
