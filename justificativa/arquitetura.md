@@ -85,3 +85,8 @@ de JOIN em casos simples, melhorando a performance de leitura.
 | data_execucao | historico | B-Tree | Filtros por período |
 | aluno_id | progresso | B-Tree | Progresso por aluno |
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 5b42a2e (ajuste docs api)
