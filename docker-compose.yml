@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   nginx:
     image: nginx:alpine
@@ -5,7 +7,6 @@ services:
     restart: always
     ports:
       - "80:80"
-    # ✨ ADICIONE ESTAS DUAS LINHAS AQUI EMBAIXO:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
@@ -14,14 +15,16 @@ services:
       - app
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: gymflow-app
     restart: always
     env_file:
       - .env
     networks:
-      - proxy-network  # 🌐 Fala com o Nginx
-      - db-network     # 🗄️ Fala com o Banco e Redis
+      - proxy-network
+      - db-network
     depends_on:
       db:
         condition: service_healthy
@@ -39,9 +42,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/setup.sql:/docker-entrypoint-initdb.d/01-setup.sql:ro
+      - ./scripts/seed/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     networks:
       - db-network
-    # 👇 Adicione essas linhas exatamente aqui embaixo mantendo o alinhamento:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -53,12 +56,33 @@ services:
     container_name: gymflow-cache
     restart: always
     networks:
-      - db-network     # 🔒 Isolado também
+      - db-network
+
+  # 🛠️ Agora o cli está perfeitamente alinhado abaixo de services!
+  cli:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: gymflow-cli
+    env_file:
+      - .env
+    environment:
+      DB_HOST: gymflow-db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/usr/src/app
+    working_dir: /usr/src/app
+    networks:
+      - db-network
 
 volumes:
   postgres_data:
 
-# 📁 Definição das duas redes separadas
 networks:
   proxy-network:
     driver: bridge
