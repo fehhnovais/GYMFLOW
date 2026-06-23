@@ -1,435 +1,272 @@
-# GymFlow
+# GymFlow — API REST
 
-## Visão Geral
-GymFlow é um sistema completo de gerenciamento de treinos para academias. O objetivo é permitir o cadastro de alunos, a criação de treinos personalizados, o controle de exercícios, o registro de histórico de execução e o acompanhamento da evolução física.
+Sistema de gerenciamento de treinos para academias. Permite cadastro de alunos, criação de treinos personalizados, controle de exercícios, registro de histórico de execução e acompanhamento de evolução física.
 
-## Funcionalidades Principais
-- Cadastro e edição de alunos
-- Criação e organização de treinos por aluno
-- Registro de exercícios e grupos musculares
-- Associação de exercícios a treinos com séries, repetições e carga
-- Histórico de treinos executados por aluno
-- Controle de progresso físico ao longo do tempo
-- Suporte opcional para autenticação de usuários (personal trainers)
+---
 
-## Arquitetura Sugerida
-A arquitetura deve separar responsabilidades em camadas claras:
-- `controllers` — lógica de tratamento de requisições e respostas
-- `services` — regras de negócio e orquestração de processos
-- `models` — definição de entidades e mapeamento para o banco
-- `routes` — endpoints da API
-- `database` — configuração e inicialização da conexão com o banco
-- `middlewares` — validações, autenticação e tratamento de erros
+## Entidades, Tabelas e Relacionamentos
 
-### Estrutura de pastas sugerida
+| Tabela              | Descrição                                      |
+|---------------------|------------------------------------------------|
+| `usuarios`          | Usuários do sistema (admin, trainer, aluno)    |
+| `personais`         | Personal trainers vinculados a usuários        |
+| `alunos`            | Alunos vinculados a usuários e personais       |
+| `exercicios`        | Catálogo de exercícios com grupo muscular      |
+| `treinos`           | Treinos criados para alunos por personais      |
+| `treino_exercicios` | **Tabela pivô** — relação N:N treinos↔exercicios |
+| `historico`         | Histórico de execução de treinos por aluno     |
+| `progresso`         | Evolução física do aluno ao longo do tempo     |
 
-```
-src/
-├── controllers/
-├── routes/
-├── services/
-├── models/
-├── database/
-├── middlewares/
-└── app.js
-```
+**Relação N:N:** `treinos` ↔ `exercicios` via `treino_exercicios`  
+**Tabela pivô:** `treino_exercicios` (possui model própria)
 
-## Backend (API REST)
-### Stack recomendada
-- Node.js
-- Express
-- PostgreSQL ou MySQL
+### Relacionamentos
+- `usuarios` 1:1 `alunos`
+- `usuarios` 1:1 `personais`
+- `personais` 1:N `alunos`
+- `personais` 1:N `treinos`
+- `alunos` 1:N `treinos`
+- `treinos` N:N `exercicios` via `treino_exercicios`
+- `alunos` 1:N `historico`
+- `alunos` 1:N `progresso`
 
-## Endpoints principais
+---
+
+## CRUD das Entidades Principais
+
+### Usuarios
+| Método | Rota             | Ação                    |
+|--------|------------------|-------------------------|
+| POST   | `/usuarios`      | Cadastra novo usuário   |
+| POST   | `/login`         | Login e retorno de JWT  |
+
 ### Alunos
-- `POST /alunos` — cria um novo aluno
-- `GET /alunos` — lista todos os alunos
-- `GET /alunos/:id` — obtém um aluno específico
-- `PUT /alunos/:id` — atualiza um aluno
-- `DELETE /alunos/:id` — remove um aluno
+| Método | Rota           | Ação                    |
+|--------|----------------|-------------------------|
+| GET    | `/alunos`      | Lista todos os alunos   |
+| GET    | `/alunos/:id`  | Busca aluno por ID      |
+| POST   | `/alunos`      | Cria novo aluno         |
+| PUT    | `/alunos/:id`  | Atualiza aluno          |
+| DELETE | `/alunos/:id`  | Remove aluno            |
 
-Campos de aluno:
-- `id`
-- `nome`
-- `email`
-- `idade`
-- `peso`
-- `altura`
-- `objetivo` (ex.: emagrecer, hipertrofia)
+### Personais
+| Método | Rota             | Ação                      |
+|--------|------------------|---------------------------|
+| GET    | `/personais`     | Lista todos os personais  |
+| GET    | `/personais/:id` | Busca personal por ID     |
+| POST   | `/personais`     | Cria novo personal        |
+| PUT    | `/personais/:id` | Atualiza personal         |
+| DELETE | `/personais/:id` | Remove personal           |
 
 ### Treinos
-- `POST /treinos` — cria um treino para um aluno
-- `GET /treinos` — lista todos os treinos
-- `GET /treinos/:id` — obtém um treino específico
-- `PUT /treinos/:id` — atualiza um treino
-- `DELETE /treinos/:id` — exclui um treino
+| Método | Rota           | Ação                    |
+|--------|----------------|-------------------------|
+| GET    | `/treinos`     | Lista todos os treinos  |
+| GET    | `/treinos/:id` | Busca treino por ID     |
+| POST   | `/treinos`     | Cria novo treino        |
+| PUT    | `/treinos/:id` | Atualiza treino         |
+| DELETE | `/treinos/:id` | Remove treino           |
 
-Campos de treino:
-- `id`
-- `aluno_id`
-- `nome`
-- `descricao`
-- `data_criacao`
+### Exercicios
+| Método | Rota              | Ação                       |
+|--------|-------------------|----------------------------|
+| GET    | `/exercicios`     | Lista todos os exercicios  |
+| GET    | `/exercicios/:id` | Busca exercicio por ID     |
+| POST   | `/exercicios`     | Cria novo exercicio        |
+| PUT    | `/exercicios/:id` | Atualiza exercicio         |
+| DELETE | `/exercicios/:id` | Remove exercicio           |
 
-### Exercícios
-- `POST /exercicios` — cria um exercício
-- `GET /exercicios` — lista todos os exercícios
-- `GET /exercicios/:id` — obtém um exercício específico
-- `PUT /exercicios/:id` — atualiza um exercício
-- `DELETE /exercicios/:id` — exclui um exercício
+### TreinoExercicios (tabela pivô N:N)
+| Método | Rota                                  | Ação                              |
+|--------|---------------------------------------|-----------------------------------|
+| GET    | `/treinos/:treino_id/exercicios`      | Lista exercicios do treino        |
+| GET    | `/treinos/:treino_id/exercicios/:id`  | Busca associação por ID           |
+| POST   | `/treinos/:treino_id/exercicios`      | Associa exercicio ao treino       |
+| PUT    | `/treinos/:treino_id/exercicios/:id`  | Atualiza séries/repetições/carga  |
+| DELETE | `/treinos/:treino_id/exercicios/:id`  | Remove associação                 |
 
-Campos de exercício:
-- `id`
-- `nome`
-- `grupo_muscular`
-- `descricao`
-
-### TreinoExercicios (relacionamento N:N)
-- `POST /treino-exercicios` — associa exercício a treino
-- `GET /treino-exercicios` — lista associações
-
-Campos de associação:
-- `treino_id`
-- `exercicio_id`
-- `series`
-- `repeticoes`
-- `carga`
-
-### Histórico
-- `POST /historico` — registra a execução de um treino
-- `GET /historico/aluno/:id` — retorna o histórico de um aluno
-
-Campos de histórico:
-- `aluno_id`
-- `treino_id`
-- `data_execucao`
-- `observacoes`
+### Historico
+| Método | Rota              | Ação                        |
+|--------|-------------------|-----------------------------|
+| GET    | `/historico`      | Lista registros de historico|
+| GET    | `/historico/:id`  | Busca registro por ID       |
+| POST   | `/historico`      | Cria registro               |
+| PUT    | `/historico/:id`  | Atualiza registro           |
+| DELETE | `/historico/:id`  | Remove registro             |
 
 ### Progresso
-- `POST /progresso` — registra evolução física do aluno
-- `GET /progresso/aluno/:id` — lista o progresso do aluno
+| Método | Rota             | Ação                       |
+|--------|------------------|----------------------------|
+| GET    | `/progresso`     | Lista registros de progresso|
+| GET    | `/progresso/:id` | Busca registro por ID       |
+| POST   | `/progresso`     | Cria registro               |
+| PUT    | `/progresso/:id` | Atualiza registro           |
+| DELETE | `/progresso/:id` | Remove registro             |
 
-Campos de progresso:
-- `aluno_id`
-- `peso`
-- `percentual_gordura`
-- `data_registro`
+---
 
-### Usuários (opcional)
-- `POST /usuarios` — cadastra um personal trainer ou administrador
-- `POST /login` — autentica usuário
+## Autenticação JWT
 
-Campos de usuário:
-- `id`
-- `nome`
-- `email`
-- `senha`
-- `tipo`
+### 1. Criar um usuário (admin ou trainer)
 
-## Modelo de Banco de Dados
-### SGBD recomendado
-- PostgreSQL (recomendado para projetos com Docker)
-- MySQL também é compatível
+```http
+POST /usuarios
+Content-Type: application/json
 
-### Tabelas e relacionamentos
-O sistema deve usar um modelo relacional com tabelas conectadas por chaves estrangeiras.
-
-- `alunos` → `treinos` (1:N)
-- `treinos` → `exercicios` (N:N via `treino_exercicios`)
-- `alunos` → `historico` (1:N)
-- `alunos` → `progresso` (1:N)
-
-### Exemplo de criação de tabelas
-
-```sql
-CREATE TABLE alunos (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    idade INT,
-    peso DECIMAL(5,2),
-    altura DECIMAL(4,2),
-    objetivo VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE treinos (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    nome VARCHAR(50) NOT NULL,
-    descricao TEXT,
-    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_aluno
-        FOREIGN KEY (aluno_id)
-        REFERENCES alunos(id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE exercicios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    grupo_muscular VARCHAR(50) NOT NULL,
-    descricao TEXT
-);
-
-CREATE TABLE treino_exercicios (
-    id SERIAL PRIMARY KEY,
-    treino_id INT NOT NULL,
-    exercicio_id INT NOT NULL,
-    series INT NOT NULL,
-    repeticoes INT NOT NULL,
-    carga DECIMAL(5,2),
-    CONSTRAINT fk_treino
-        FOREIGN KEY (treino_id)
-        REFERENCES treinos(id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_exercicio
-        FOREIGN KEY (exercicio_id)
-        REFERENCES exercicios(id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE historico (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    treino_id INT NOT NULL,
-    data_execucao DATE NOT NULL,
-    observacoes TEXT,
-    CONSTRAINT fk_hist_aluno
-        FOREIGN KEY (aluno_id)
-        REFERENCES alunos(id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_hist_treino
-        FOREIGN KEY (treino_id)
-        REFERENCES treinos(id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE progresso (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    peso DECIMAL(5,2),
-    percentual_gordura DECIMAL(5,2),
-    data_registro DATE NOT NULL,
-    CONSTRAINT fk_progresso_aluno
-        FOREIGN KEY (aluno_id)
-        REFERENCES alunos(id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE usuarios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100),
-    email VARCHAR(100) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    tipo VARCHAR(20) DEFAULT 'trainer',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+{
+  "nome": "Admin GymFlow",
+  "email": "admin@gymflow.com",
+  "senha": "senha123",
+  "tipo": "admin"
+}
 ```
 
-### Regras de negócio sugeridas
-```sql
-ALTER TABLE alunos
-ADD CONSTRAINT chk_idade CHECK (idade > 0);
+Tipos disponíveis: `admin`, `trainer`, `aluno`
 
-ALTER TABLE treino_exercicios
-ADD CONSTRAINT chk_series CHECK (series > 0);
+### 2. Fazer login e obter token
+
+```http
+POST /login
+Content-Type: application/json
+
+{
+  "email": "admin@gymflow.com",
+  "senha": "senha123"
+}
 ```
 
-## Docker
-Utilizar Docker garante que o backend e o banco rodem em um ambiente consistente.
-
-### docker-compose.yml
-
-```yaml
-version: '3.8'
-
-services:
-  backend:
-    build: .
-    ports:
-      - '3000:3000'
-    depends_on:
-      - db
-    environment:
-      DB_HOST: db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: gym
-
-  db:
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: gym
-    ports:
-      - '5432:5432'
+Resposta:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "usuario": { "id": 1, "nome": "Admin GymFlow", "email": "admin@gymflow.com", "tipo": "admin" }
+}
 ```
 
-### Dockerfile
+### 3. Usar o token nas requisições
 
-```dockerfile
-FROM node:18
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install
-
-COPY . .
-
-EXPOSE 3000
-CMD ["npm", "run", "dev"]
+Adicione o header em todas as rotas protegidas:
+```
+Authorization: Bearer <token>
 ```
 
-## Uso
-1. Configure as variáveis de ambiente no backend.
-2. Inicie o banco de dados e o servidor com `docker compose up --build`.
-3. Use ferramentas como Postman ou Insomnia para testar os endpoints.
+**Regras de acesso:**
+- Rotas de alunos e treinos: `trainer` ou `admin`
+- Rotas de personais: apenas `admin`
+- Rotas de leitura (GET) de treinos, exercicios, historico, progresso: qualquer usuário autenticado
 
-## Scripts SQL (setup e seed)
+---
 
-Para criar o banco e popular os dados de teste use os scripts em `scripts/setup.sql` e `scripts/seed/seed.sql`.
+## Documentação Swagger
 
-Variáveis de ambiente esperadas:
-- `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (por padrão usamos `gymflow` como nome do DB)
+Acesse após subir o projeto:
 
-Exemplo com `psql` (Postgres):
+```
+http://localhost/api-docs
+```
+
+No Swagger, clique em **Authorize** e insira o token no formato:
+```
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+## Containers Docker
+
+| Container            | Imagem              | Função                                  |
+|----------------------|---------------------|-----------------------------------------|
+| `gymflow-nginx-proxy`| `nginx:alpine`      | Proxy reverso — ponto de entrada externo|
+| `gymflow-app`        | `node:24-alpine`    | Servidor Node.js/Express (sem porta pública) |
+| `gymflow-db`         | `postgres:17-alpine`| Banco de dados PostgreSQL               |
+| `gymflow-cache`      | `redis:7-alpine`    | Cache Redis                             |
+
+**Arquitetura:** `Host → Nginx (porta 80) → App Node.js (porta 3000) → PostgreSQL`
+
+O container `app` **não expõe porta diretamente** para o host — acesso somente pelo Nginx.
+
+---
+
+## Bibliotecas Utilizadas
+
+| Biblioteca         | Versão  | Uso                                     |
+|--------------------|---------|-----------------------------------------|
+| `express`          | ^5.2.1  | Servidor HTTP e roteamento              |
+| `sequelize`        | ^6.37.8 | ORM para PostgreSQL                     |
+| `pg`               | ^8.21.0 | Driver PostgreSQL                       |
+| `pg-hstore`        | ^2.3.4  | Serialização de tipos hstore            |
+| `bcrypt`           | ^6.0.0  | Hash de senhas                          |
+| `jsonwebtoken`     | ^9.0.3  | Geração e validação de tokens JWT       |
+| `dotenv`           | ^17.4.2 | Variáveis de ambiente                   |
+| `swagger-jsdoc`    | ^6.3.0  | Geração de spec Swagger a partir de JSDoc|
+| `swagger-ui-express`| ^5.0.1 | Interface web da documentação Swagger   |
+
+---
+
+## Como Executar com Docker
+
+### Pré-requisitos
+- Docker e Docker Compose instalados
+
+### Subindo o projeto
 
 ```bash
-# cria o banco (separado, pois CREATE DATABASE precisa ser executado fora do DB alvo)
-psql -U <user> -h <host> -f scripts/setup.sql
-
-# popula os dados (após criar o DB)
-psql -U <user> -h <host> -d gymflow -f scripts/seed/seed.sql
+docker compose up --build
 ```
 
-Após rodar `seed.sql` (que contém inserts com ids explícitos), execute os `setval` que já estão no final do arquivo para ajustar as sequences (Postgres).
- 
- Com Docker Compose, o serviço `db` já monta os scripts de `scripts/setup.sql` e `scripts/seed/seed.sql` em `/docker-entrypoint-initdb.d`.
- Na primeira inicialização de `postgres_data`, o Postgres executa automaticamente esses scripts e cria o banco `gymflow`.
- Se quiser reaplicar os scripts, apague o volume `postgres_data` antes de subir o compose novamente.
+Na primeira execução, o PostgreSQL criará o banco automaticamente via `scripts/setup.sql`.
 
-## Arquivos adicionados para entrega
-- `modelagem/der.md` — diagrama ER em Mermaid (exportar para PNG/SVG para a apresentação)
-- `modelagem/modelo_logico.md` — resumo do modelo lógico e observações de normalização
-- `justificativa/indices.md` — justificativa dos índices aplicados
-- `queries/consultas_criticas.sql` — 5 consultas críticas para avaliação
-- `queries/explain_instructions.md` — instruções para executar `EXPLAIN ANALYZE` e coletar evidências
+### Testando a API
 
-Se quiser, posso exportar o `mermaid` do `modelagem/der.md` para PNG aqui, ou gerar os `EXPLAIN ANALYZE` se me permitir executar os scripts no seu banco.
+```bash
+# Health check
+curl http://localhost/health
 
-## O que o projeto deve demonstrar
-- API REST organizada e fácil de manter
-- Modelagem relacional consistente
-- Integração com Docker
-- Boas práticas de estrutura de código
-- Separação clara entre controladores, serviços e modelos
-
-## Dados de teste (opcional)
-
-```sql
-INSERT INTO alunos (nome, email, idade, peso, altura, objetivo)
-VALUES ('Fernanda', 'fer@gmail.com', 22, 60.5, 1.65, 'Hipertrofia');
-
-INSERT INTO exercicios (nome, grupo_muscular)
-VALUES ('Supino', 'Peito'),
-       ('Agachamento', 'Perna');
+# Login
+curl -X POST http://localhost/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@gymflow.com","senha":"senha123"}'
 ```
 
-Tabela de relacionamento (N:N)
-CREATE TABLE treino_exercicios (
-    id SERIAL PRIMARY KEY,
-    treino_id INT NOT NULL,
-    exercicio_id INT NOT NULL,
-    series INT NOT NULL,
-    repeticoes INT NOT NULL,
-    carga DECIMAL(5,2),
+### Parando o projeto
 
-    CONSTRAINT fk_treino
-        FOREIGN KEY (treino_id)
-        REFERENCES treinos(id)
-        ON DELETE CASCADE,
+```bash
+docker compose down
+```
 
-    CONSTRAINT fk_exercicio
-        FOREIGN KEY (exercicio_id)
-        REFERENCES exercicios(id)
-        ON DELETE CASCADE
-);
+Para remover o volume de dados do banco (reset completo):
+```bash
+docker compose down -v
+```
 
-5. 📈 historico
-Registra execução de treinos
-CREATE TABLE historico (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    treino_id INT NOT NULL,
-    data_execucao DATE NOT NULL,
-    observacoes TEXT,
+---
 
-    CONSTRAINT fk_hist_aluno
-        FOREIGN KEY (aluno_id)
-        REFERENCES alunos(id)
-        ON DELETE CASCADE,
+## Como Executar as Migrations
 
-    CONSTRAINT fk_hist_treino
-        FOREIGN KEY (treino_id)
-        REFERENCES treinos(id)
-        ON DELETE CASCADE
-);
+Dentro do container (após `docker compose up`):
+```bash
+docker exec gymflow-app node command.js migrate
+```
 
+Ou localmente (com banco acessível):
+```bash
+# Na raiz do projeto
+node command.js migrate
+```
 
-6. 📊 progresso
-Evolução física do aluno
-CREATE TABLE progresso (
-    id SERIAL PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    peso DECIMAL(5,2),
-    percentual_gordura DECIMAL(5,2),
-    data_registro DATE NOT NULL,
+O comando `migrate` usa `sequelize.sync()` para criar/atualizar as tabelas conforme os models.
 
-    CONSTRAINT fk_progresso_aluno
-        FOREIGN KEY (aluno_id)
-        REFERENCES alunos(id)
-        ON DELETE CASCADE
-);
+---
 
-7. 👨‍🏫 usuarios (opcional – diferencial)
-Para login (personal trainer)
-CREATE TABLE usuarios (
-    id SERIAL PRIMARY KEY,
-    nome VARCHAR(100),
-    email VARCHAR(100) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    tipo VARCHAR(20) DEFAULT 'trainer',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+## Variáveis de Ambiente (.env)
 
-
-🔗 📌 RELACIONAMENTOS (RESUMO)
-alunos → treinos (1:N)
-treinos → exercicios (N:N via treino_exercicios)
-alunos → historico (1:N)
-alunos → progresso (1:N)
-
-
-
-🧠 Regra de negócio (CHECK) 
-
-ALTER TABLE alunos
-ADD CONSTRAINT chk_idade CHECK (idade > 0);
-
-ALTER TABLE treino_exercicios
-ADD CONSTRAINT chk_series CHECK (series > 0); 
-
-
-📦 DADOS DE TESTE (opcional) 
-
-INSERT INTO alunos (nome, email, idade, peso, altura, objetivo)
-VALUES ('Fernanda', 'fer@gmail.com', 22, 60.5, 1.65, 'Hipertrofia');
-
-INSERT INTO exercicios (nome, grupo_muscular)
-VALUES ('Supino', 'Peito'),
-       ('Agachamento', 'Perna');
-
+```env
+DB_HOST=gymflow-db
+DB_PORT=5432
+DB_NAME=gymflow
+DB_USER=gymflow_user
+DB_PASSWORD=gymflow_senha_123
+JWT_SECRET=gymflow_jwt_secret_chave_super_segura_2024
+JWT_EXPIRES_IN=8h
+PORT=3000
+```

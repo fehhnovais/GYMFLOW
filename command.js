@@ -1,6 +1,6 @@
 import 'dotenv/config'
-import sequelize from './src/database/connection.js'
-import './src/models/index.js'
+import sequelize from './backend/src/database/connection.js'
+import './backend/src/models/index.js'
 
 const command = process.argv[2]
 
